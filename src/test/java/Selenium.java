@@ -1,7 +1,11 @@
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
@@ -94,6 +98,50 @@ public class Selenium {
         driver.findElement(By.id("login-button")).click();
 
         assertEquals("Sauce Labs Backpack",driver.findElement(By.xpath("//*[@id=\"item_4_title_link\"]/div")).getText());
+    }
+
+    @Test
+    public void loginTestWithExplicitWait (){
+        WebDriver driver = WebDriverManager.chromedriver().create();
+
+        driver.get("https://www.saucedemo.com/");
+        WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(10));
+
+        //Explicit Wait
+        //menunggu kondisi tertentu terjadi sebelum melanjutkan
+
+        //explicit wait to be presence
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input#user-name")));
+        driver.findElement(By.cssSelector("input#user-name")).sendKeys("standard_user");
+
+        //explicit wait to be presence
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"password\"]")));
+        driver.findElement(By.xpath("//*[@id=\"password\"]")).sendKeys("secret_sauce");
+
+        //explicit wait for to be clickable
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("login-button")));
+        driver.findElement(By.id("login-button")).click();
+
+    }
+
+    @Test
+    public void loginTestWithFluentWait () {
+        WebDriver driver = WebDriverManager.chromedriver().create();
+        driver.get("https://www.saucedemo.com/");
+
+        //fluent wait
+        // Nunggu sambil cek berkala + bisa atur error apa yang mau diabaikan
+
+        FluentWait<WebDriver> wait = new FluentWait<>(driver);
+        wait.withTimeout(Duration.ofMinutes(1));
+        wait.pollingEvery(Duration.ofSeconds(1));
+        wait.ignoring(NoSuchElementException.class);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input#user-name")));
+
+        driver.findElement(By.cssSelector("input#user-name")).sendKeys("standard_user");
+        driver.findElement(By.xpath("//*[@id=\"password\"]")).sendKeys("secret_sauce");
+        driver.findElement(By.id("login-button")).click();
+
     }
 
 }
